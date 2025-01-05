@@ -143,7 +143,7 @@ async function processAndIndexData(
 
     try {
       if (fieldType.toLowerCase() === "blob") {
-        const fileBuffer = row[fieldName];
+        const fileBuffer = Buffer.from(row[fieldName].replace(/\\x/g, ""), "hex");
         const fileName = `pg_${database_name}_${table_name}_file_${row.row_id}`;
 
         // Process BLOB Field
