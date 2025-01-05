@@ -177,7 +177,7 @@ async function processAndIndexData(
             row.action_type === "INSERT" ? "upload" : "mergeOrUpload",
           id: `pg_${database_name}_${table_name}_${row.row_id}_${index}`,
           content: chunk,
-          title: `PG Row ID ${row.id}`,
+          title: `PG Row ID ${row.row_id}`,
           description: "No description",
           image: null,
           category: category,
