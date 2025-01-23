@@ -251,7 +251,7 @@ function isUtf8(buffer) {
 }
 
 // Process BLOB field for text extraction
-async function processBlobField(fileBuffer) {
+async function processBlobField(fileBuffer, mimeType) {
   let extractedText = "";
   // const mimeType = await detectMimeType(fileBuffer); // Detect MIME dynamically
 

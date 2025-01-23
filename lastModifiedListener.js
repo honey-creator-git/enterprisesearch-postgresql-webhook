@@ -98,22 +98,23 @@ async function fetchUpdatedRows(config) {
             ORDER BY change_time ASC
         `;
 
-    const lastIndexedTime = new Date(config.source.updatedAt || 0);
+    const lastIndexedTime = new Date(
+      config.source.updatedAt || 0
+    ).toISOString();
 
     const result = await client.query(query, [lastIndexedTime]);
 
     if (result.rows.length > 0) {
-      const latestChangeTime = result.rows[result.rows.length - 1].change_time;
+      const latestChangeTime = new Date(
+        result.rows[result.rows.length - 1].change_time
+      ).toISOString();
 
-      console.log(
-        "Updating Elasticsearch with:",
-        latestChangeTime.toISOString()
-      );
+      console.log("Updating Elasticsearch with:", latestChangeTime);
 
       await updateTimeInElasticsearch(
         `datasource_postgresql_connection_${config.source.coid.toLowerCase()}`,
         config.id,
-        latestChangeTime.toISOString()
+        latestChangeTime
       );
     }
 
@@ -143,7 +144,16 @@ async function processAndIndexData(
   for (const row of rows) {
     let processedContent;
     let fileUrl = "";
-    const fileBuffer = Buffer.from(row[fieldName].replace(/\\x/g, ""), "hex");
+    let fileBuffer;
+    const fieldValue = row[fieldName];
+    // Determine if the field value is hexadecimal or plain text
+    if (fieldValue.startsWith("\\x")) {
+      // Hexadecimal case (first screenshot)
+      fileBuffer = Buffer.from(fieldValue.replace(/\\x/g, ""), "hex");
+    } else {
+      // Plain text case (second screenshot)
+      fileBuffer = Buffer.from(fieldValue, "utf8");
+    }
     const fileName = row[titleField];
 
     try {
